@@ -3,8 +3,8 @@ from google import genai
 
 st.set_page_config(page_title="Miko: Si Teman Produktif", page_icon="💼", layout="centered")
 
-# --- PASANG KUNCI API KAMU DI SINI ---
-API_KEY = "AIzaSyBytv4A8yMAoMtpws8Gon2pU__eMMDxkNk"
+# --- AMBIL KUNCI API DARI CONFIG STREAMLIT SECARA AMAN ---
+API_KEY = st.secrets["GEMINI_API_KEY"]
 
 # Inisialisasi Otak Google AI
 try:
