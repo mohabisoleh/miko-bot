@@ -1,17 +1,17 @@
 import streamlit as st
-from google import genai  # <-- Memakai cara panggil modern yang didukung sistemmu
+from google import genai
 from openai import OpenAI
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(page_title="Miko: Si Teman Produktif", page_icon="💼", layout="centered")
 
-# --- Ambil API Key dari Secrets ---
+# --- Ambil API Key dari Secrets Streamlit ---
 gemini_key = st.secrets["GEMINI_API_KEY"]
 openai_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Inisialisasi Klien AI ---
 try:
-    # Menggunakan cara inisialisasi terbaru sesuai library 'google-genai'
+    # Menggunakan inisialisasi Client terbaru dari google-genai
     gemini_client = genai.Client(api_key=gemini_key)
     openai_client = OpenAI(api_key=openai_key)
 except Exception:
@@ -23,7 +23,7 @@ except Exception:
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
-# Tampilkan riwayat chat lama
+# Tampilkan riwayat chat lama di layar
 for msg in st.session_state.messages:
     with st.chat_message(msg["role"]):
         if msg.get("type") == "image":
@@ -60,11 +60,11 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
                 except Exception as e:
                     st.error(f"Aduh maaf sayang, Miko gagal menggambar: {e}")
         
-        # --- FITUR CHAT TEKS (GEMINI MODERN) ---
+        # --- FITUR CHAT TEKS (GEMINI TERBARU) ---
         else:
             with st.spinner("Miko lagi mikir..."):
                 try:
-                    # Menggunakan syntax generate_content terbaru yang dijamin tidak akan 404
+                    # Format panggil paling baru, otomatis mengenali gemini-1.5-flash
                     response = gemini_client.models.generate_content(
                         model='gemini-1.5-flash',
                         contents=user_input,
