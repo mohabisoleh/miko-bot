@@ -1,22 +1,26 @@
 import streamlit as st
-from google import genai
+import google.generativeai as genai
 from openai import OpenAI
 
 # --- Konfigurasi Halaman ---
 st.set_page_config(page_title="Miko: Si Teman Produktif", page_icon="💼", layout="centered")
 
 # --- Ambil API Key dari Secrets Streamlit ---
+# Pastikan di menu 'Secrets' Streamlit kamu sudah ada GEMINI_API_KEY dan OPENAI_API_KEY
 gemini_key = st.secrets["GEMINI_API_KEY"]
 openai_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Inisialisasi Klien AI ---
 try:
-    # Menggunakan SDK google-genai versi terbaru
-    gemini_client = genai.Client(api_key=gemini_key)
+    # Konfigurasi Google Gemini
+    genai.configure(api_key=gemini_key)
+    model_gemini = genai.GenerativeModel('gemini-1.5-flash')
+    
+    # Konfigurasi OpenAI
     openai_client = OpenAI(api_key=openai_key)
-except Exception:
-    st.error("Waduh, ada kendala konfigurasi API Key rahasia Miko.")
-    gemini_client = None
+except Exception as e:
+    st.error(f"Waduh, ada kendala konfigurasi API: {e}")
+    model_gemini = None
     openai_client = None
 
 # --- Inisialisasi Riwayat Chat ---
@@ -33,6 +37,7 @@ for msg in st.session_state.messages:
 
 # --- Proses Input Chat dari User ---
 if user_input := st.chat_input("Tanya Miko apa saja..."):
+    # Tampilkan pesan user
     with st.chat_message("user"):
         st.write(user_input)
     st.session_state.messages.append({"role": "user", "content": user_input, "type": "text"})
@@ -41,7 +46,7 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
         input_lower = user_input.lower()
         
         # --- FITUR BUAT GAMBAR (DALL-E 3) ---
-        if "buat gambar" in input_lower or "bikin gambar" in input_lower or "buat foto" in input_lower:
+        if any(keyword in input_lower for keyword in ["buat gambar", "bikin gambar", "buat foto"]):
             with st.spinner("Miko lagi ambil kuas dan menggambar buat kamu... 🎨"):
                 try:
                     prompt_gambar = user_input.replace("buat gambar", "").replace("bikin gambar", "").replace("buat foto", "").strip()
@@ -60,15 +65,11 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
                 except Exception as e:
                     st.error(f"Aduh maaf sayang, Miko gagal menggambar: {e}")
         
-        # --- FITUR CHAT TEKS (GEMINI TERBARU & GENERASI TERBARU) ---
+        # --- FITUR CHAT TEKS (GEMINI) ---
         else:
             with st.spinner("Miko lagi mikir..."):
                 try:
-                    # Model gemini-2.0-flash wajib ditulis lengkap agar terhindar dari error 404 v1beta lama
-                    response = gemini_client.models.generate_content(
-                        model='gemini-1.5-flash',
-                        contents=user_input,
-                    )
+                    response = model_gemini.generate_content(user_input)
                     st.write(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text, "type": "text"})
                 except Exception as e:
