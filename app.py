@@ -64,9 +64,9 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
         else:
             with st.spinner("Miko lagi mikir..."):
                 try:
-                    # Format panggil paling baru, otomatis mengenali gemini-1.5-flash
+                    # Format panggil paling baru, otomatis mengenali gemini-1.5-flash-latest
                     response = gemini_client.models.generate_content(
-                        model='gemini-1.5-flash',
+                        model='gemini-1.5-flash-latest',
                         contents=user_input,
                     )
                     st.write(response.text)
