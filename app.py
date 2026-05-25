@@ -13,7 +13,7 @@ openai_key = st.secrets["OPENAI_API_KEY"]
 try:
     # Koneksi ke Gemini (Otak Teks)
     genai.configure(api_key=gemini_key)
-    gemini_model = genai.GenerativeModel('gemini-pro') 
+    gemini_model = genai.GenerativeModel('gemini-1.5-flash-latest') 
 
     # Koneksi ke OpenAI (Tangan Gambar DALL-E 3)
     openai_client = OpenAI(api_key=openai_key)
