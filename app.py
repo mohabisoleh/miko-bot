@@ -1,5 +1,5 @@
 import streamlit as st
-import google.generativeai as genai
+from google import genai
 from openai import OpenAI
 
 # --- Konfigurasi Halaman ---
@@ -11,11 +11,12 @@ openai_key = st.secrets["OPENAI_API_KEY"]
 
 # --- Inisialisasi Klien AI ---
 try:
-    # Menggunakan metode inisialisasi yang jauh lebih stabil untuk Streamlit
-    genai.configure(api_key=gemini_key)
+    # Menggunakan SDK google-genai versi terbaru
+    gemini_client = genai.Client(api_key=gemini_key)
     openai_client = OpenAI(api_key=openai_key)
 except Exception:
     st.error("Waduh, ada kendala konfigurasi API Key rahasia Miko.")
+    gemini_client = None
     openai_client = None
 
 # --- Inisialisasi Riwayat Chat ---
@@ -59,13 +60,15 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
                 except Exception as e:
                     st.error(f"Aduh maaf sayang, Miko gagal menggambar: {e}")
         
-        # --- FITUR CHAT TEKS (GEMINI STABIL) ---
+        # --- FITUR CHAT TEKS (GEMINI TERBARU & GENERASI TERBARU) ---
         else:
             with st.spinner("Miko lagi mikir..."):
                 try:
-                    # Jalur pemanggilan alternatif yang dijamin lolos dari error 404 v1beta
-                    model = genai.GenerativeModel('gemini-1.5-flash')
-                    response = model.generate_content(user_input)
+                    # Model gemini-2.0-flash wajib ditulis lengkap agar terhindar dari error 404 v1beta lama
+                    response = gemini_client.models.generate_content(
+                        model='gemini-2.0-flash',
+                        contents=user_input,
+                    )
                     st.write(response.text)
                     st.session_state.messages.append({"role": "assistant", "content": response.text, "type": "text"})
                 except Exception as e:
