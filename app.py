@@ -66,7 +66,7 @@ if user_input := st.chat_input("Tanya Miko apa saja..."):
                 try:
                     # Model gemini-2.0-flash wajib ditulis lengkap agar terhindar dari error 404 v1beta lama
                     response = gemini_client.models.generate_content(
-                        model='gemini-2.0-flash',
+                        model='gemini-1.5-flash',
                         contents=user_input,
                     )
                     st.write(response.text)
